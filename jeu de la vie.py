@@ -81,7 +81,10 @@ def voisins(item,vie):
     nbVoisins = 0
     for x in range (-1,2):
         for y in range (-1,2):
-            #A complÃ©ter
+            if vie[item]==1:
+                nbVoisins+=1
+            else:
+                pass 
             pass
     return nbVoisins
 
@@ -90,7 +93,12 @@ def prochaineEtape(vie):
     nouvelleVie= {}
     for item in vie:
         #recupÃ¨re le nombre de voisins d'une cellule
-        #A complÃ©ter
+        if voisins(item,vie)==3:
+            nouvelleVie[item]=[1]
+        elif voisins(item,vie)<2 or voisins(item,vie)>3:
+            nouvelleVie[item]=[0]
+        elif voisins(item,vie)==2:
+            pass
         pass
 
     return nouvelleVie

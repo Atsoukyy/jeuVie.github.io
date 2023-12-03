@@ -5,18 +5,24 @@ import pygame
 from random import *
 #region------------------------------------------------------------__Init__-----------------------------------------------------------------------------------------
 #variables de l'Ã©cran
-WINDOWWIDTH = 640
-WINDOWHEIGHT = 480
-CELLSIZE = 32
+WINDOWWIDTH = 1366
+WINDOWHEIGHT = 700
+CELLSIZE = 6
 CELLWIDTH = WINDOWWIDTH // CELLSIZE
 CELLHEIGHT = WINDOWHEIGHT // CELLSIZE
 
-FPS=1   #vitesse du jeu
+FPS=144   #vitesse du jeu
 
 ROUGE=(255,0,0)
 NOIR=(0,0,0)
 BLANC=(255,255,255)
 VERT=(0,255,0)
+BLEU=(0,0,255)
+cellcolor=BLEU
+grillecolor=NOIR
+background_color=NOIR
+
+
 global nbCellHeight, nbCellWidth
 nbCellWidth=WINDOWWIDTH//CELLSIZE
 nbCellHeight=WINDOWHEIGHT//CELLSIZE
@@ -35,9 +41,9 @@ font = pygame.font.Font('freesansbold.ttf', 20)
 #Trace la grille
 def tracerGrille():
     for i in range(0,WINDOWWIDTH+1,CELLSIZE):
-        pygame.draw.line(fenetre,ROUGE,(0+i,0),(0+i,480),1)
+        pygame.draw.line(fenetre,grillecolor,(0+i,0),(0+i,700),1)
     for j in range(0,WINDOWHEIGHT+1,CELLSIZE):
-        pygame.draw.line(fenetre,ROUGE,(0,0+j),(640,0+j),1)
+        pygame.draw.line(fenetre,grillecolor,(0,0+j),(1366,0+j),1)
     pass
 
 
@@ -48,7 +54,7 @@ def initialiserCellules():
     
     for i in range(0,nbCellWidth,1):
         for j in range(0,nbCellHeight,1):
-            vie[(i,j)]=[0]
+            vie[(i,j)]=0
            
    
     return vie
@@ -71,36 +77,60 @@ def remplirGrille(vie):
         y = y * CELLSIZE
         x = x * CELLSIZE
         if vie[item] == 0:
-            pygame.draw.rect(fenetre, NOIR, (x, y, CELLSIZE, CELLSIZE))
+            pygame.draw.rect(fenetre, background_color, (x, y, CELLSIZE, CELLSIZE))
         if vie[item] == 1:
-            pygame.draw.rect(fenetre, VERT, (x, y, CELLSIZE, CELLSIZE))
+            pygame.draw.rect(fenetre, cellcolor, (x, y, CELLSIZE, CELLSIZE))
 
 #DÃ©termine combien de voisins sont en vie
 #rappel item est un tuple (x,y) contenant la position de la cellule.
+'''''
 def voisins(item,vie):
     nbVoisins = 0
     for x in range (-1,2):
         for y in range (-1,2):
-            if vie[item]==1:
-                nbVoisins+=1
-            else:
-                pass 
-            pass
+            xv=item[0]+x
+            yv=item[1]+y
+
+            
+    return nbVoisins
+    '''
+def voisins(item, vie):
+ 
+    nbVoisins = 0
+    xv=item[0]
+    yv=item[1]
+    for li in (xv - 1, xv, xv + 1):
+        for lj in (yv - 1, yv, yv + 1):
+            if li>=0 :
+                if lj>=0 :
+                    if li<=nbCellWidth-1:
+                        if lj<=nbCellHeight-1:
+                            if vie[li,lj] == 1 :
+                                
+                                nbVoisins += 1
+                            else:
+                                pass
+    if vie[item]==1:
+        nbVoisins-=1
+    
+ 
     return nbVoisins
 
 #calcule la prochaine Ã©tape, retourne un nouveau dictionnaire
 def prochaineEtape(vie):
-    nouvelleVie= {}
+    nouvelleVie = {}
+    p=1
     for item in vie:
-        #recupÃ¨re le nombre de voisins d'une cellule
-        if voisins(item,vie)==3:
-            nouvelleVie[item]=[1]
-        elif voisins(item,vie)<2 or voisins(item,vie)>3:
-            nouvelleVie[item]=[0]
-        elif voisins(item,vie)==2:
-            pass
-        pass
-
+        nbv=voisins(item,vie)
+        if nbv>=4:
+            nouvelleVie[item]=0
+        elif nbv<=1:
+            nouvelleVie[item]=0
+        elif nbv==3: #                     Ne marche pas, ne donne pas vie ?????
+            nouvelleVie[item]=p
+        elif nbv==2:
+            nouvelleVie[item]=vie[item]
+        
     return nouvelleVie
 
 
@@ -114,15 +144,19 @@ while loop==True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             loop = False            #fermeture de la fenetre (croix rouge)
+        
         elif event.type == pygame.KEYDOWN:  #une touche a Ã©tÃ© pressÃ©e...laquelle ?
-            if event.key == pygame.K_UP:    #est-ce la touche UP
+            if event.key == pygame.K_UP:    #est-ce la touche UP si animation est DéSACTIVER
+                #vie=generationAleatoire(vie)
                 vie=prochaineEtape(vie)     #manuel
+            if event.key ==pygame.K_w:
+                loop=False
 
-    fenetre.fill(NOIR)
+    fenetre.fill(background_color)
     remplirGrille(vie)
     tracerGrille()
     pygame.display.update() #mets Ã  jour la fentre graphique
-    vie=prochaineEtape(vie)  #pour une animation
+    vie=prochaineEtape(vie)  #pour une animation !!!!!!
     clock.tick(FPS)
 
 pygame.quit()
